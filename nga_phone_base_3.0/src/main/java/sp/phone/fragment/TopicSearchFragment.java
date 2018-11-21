@@ -92,6 +92,8 @@ public class TopicSearchFragment extends BaseMvpFragment<TopicListPresenter> imp
             }
         } else if (mRequestParam.recommend == 1) {
             setTitle(mRequestParam.title + " - 精华区");
+        } else if (mRequestParam.twentyfour == 1){
+            setTitle(mRequestParam.title + " - 24小时热帖");
         } else if (!TextUtils.isEmpty(mRequestParam.title)) {
             setTitle(mRequestParam.title);
         }

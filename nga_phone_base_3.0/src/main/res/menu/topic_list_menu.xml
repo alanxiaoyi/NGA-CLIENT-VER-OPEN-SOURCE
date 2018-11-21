@@ -2,7 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidnga="http://schemas.android.com/apk/res-auto">
 
-
     <item
         android:id="@+id/menu_add_bookmark"
         android:icon="@drawable/btn_ic_star_off"
@@ -21,6 +20,12 @@
         android:id="@+id/menu_search"
         android:icon="@drawable/btn_ic_search"
         android:title="@string/menu_search"
+        androidnga:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_twenty_four"
+        android:icon="@drawable/btn_ic_search"
+        android:title="@string/twenty_four"
         androidnga:showAsAction="ifRoom" />
 
     <item

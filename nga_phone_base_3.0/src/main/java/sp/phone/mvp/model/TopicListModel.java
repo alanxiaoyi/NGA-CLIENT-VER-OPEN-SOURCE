@@ -84,7 +84,7 @@ public class TopicListModel extends BaseModel implements TopicListContract.Model
                     @Override
                     public TopicListInfo apply(@NonNull String js) throws Exception {
                         NLog.d(js);
-                        TopicListInfo result = mConvertFactory.getTopicListInfo(js, page);
+                        TopicListInfo result = mConvertFactory.getTopicListInfo(js, page, param.twentyfour);
                         if (result != null) {
                             return result;
                         } else {
