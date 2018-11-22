@@ -34,7 +34,7 @@ import sp.phone.mvp.presenter.TopicListPresenter;
 import sp.phone.util.ActivityUtils;
 import sp.phone.util.StringUtils;
 import sp.phone.view.RecyclerViewEx;
-
+import sp.phone.util.NLog;
 
 public class TopicSearchFragment extends BaseMvpFragment<TopicListPresenter> implements TopicListContract.View, View.OnClickListener {
 
@@ -143,9 +143,7 @@ public class TopicSearchFragment extends BaseMvpFragment<TopicListPresenter> imp
 
         TextView sayingView = (TextView) mLoadingView.findViewById(R.id.saying);
         sayingView.setText(ActivityUtils.getSaying());
-
         mPresenter.loadPage(1, mRequestParam);
-
         super.onViewCreated(view, savedInstanceState);
     }
 

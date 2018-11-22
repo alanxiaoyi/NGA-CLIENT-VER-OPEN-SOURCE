@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
@@ -84,7 +85,7 @@ public class TopicListModel extends BaseModel implements TopicListContract.Model
                     @Override
                     public TopicListInfo apply(@NonNull String js) throws Exception {
                         NLog.d(js);
-                        TopicListInfo result = mConvertFactory.getTopicListInfo(js, page, param.twentyfour);
+                        TopicListInfo result = mConvertFactory.getTopicListInfo(js, page);
                         if (result != null) {
                             return result;
                         } else {
@@ -105,6 +106,45 @@ public class TopicListModel extends BaseModel implements TopicListContract.Model
                         callBack.onError(ErrorConvertFactory.getErrorMessage(throwable));
                     }
                 });
+    }
+
+    @Override
+    public void loadTwentyFourList(TopicListParam param, final OnHttpCallBack<TopicListInfo> callBack) {
+        int page = 0;
+        do {
+            page++;
+            final int tmpPage = page;
+            NLog.e(Integer.toString(tmpPage));
+            String url = getUrl(tmpPage, param);
+            mService.get(url)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io())
+                    .compose(getLifecycleProvider().<String>bindUntilEvent(FragmentEvent.DETACH))
+                    .map(new Function<String, TopicListInfo>() {
+                        @Override
+                        public TopicListInfo apply(@NonNull String js) throws Exception {
+                            NLog.d(js);
+                            TopicListInfo result = mConvertFactory.getTopicListInfo(js, tmpPage);
+                            if (result != null) {
+                                return result;
+                            } else {
+                                throw new Exception(ErrorConvertFactory.getErrorMessage(js));
+                            }
+                        }
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .compose(getLifecycleProvider().<TopicListInfo>bindUntilEvent(FragmentEvent.DETACH))
+                    .subscribe(new BaseSubscriber<TopicListInfo>() {
+                        @Override
+                        public void onNext(@NonNull TopicListInfo topicListInfo) {
+                            callBack.onSuccess(topicListInfo);
+                        }
+                        @Override
+                        public void onError(@NonNull Throwable throwable) {
+                            callBack.onError(ErrorConvertFactory.getErrorMessage(throwable));
+                        }
+                    });
+         } while (page <= 2);
     }
 
     private String getUrl(int page, TopicListParam requestInfo) {

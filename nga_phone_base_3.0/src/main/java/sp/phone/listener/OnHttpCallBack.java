@@ -9,4 +9,5 @@ public interface OnHttpCallBack<T> {
     void onError(String text);
 
     void onSuccess(T data);
+
 }

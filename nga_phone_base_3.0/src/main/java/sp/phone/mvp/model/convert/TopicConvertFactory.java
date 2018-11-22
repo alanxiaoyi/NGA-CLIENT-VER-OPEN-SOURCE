@@ -26,7 +26,7 @@ public class TopicConvertFactory {
 
     private static final String TAG = TopicConvertFactory.class.getSimpleName();
 
-    public TopicListInfo getTopicListInfo(String js, int page, int rankTwentyFour) {
+    public TopicListInfo getTopicListInfo(String js, int page) {
 
         if (js.startsWith("window.script_muti_get_var_store=")) {
             js = js.substring("window.script_muti_get_var_store=".length());
@@ -38,11 +38,7 @@ public class TopicConvertFactory {
             TopicListInfo listInfo = new TopicListInfo();
             convertSubBoard(listInfo, topicListBean);
             convertTopic(listInfo, topicListBean, page);
-            if (rankTwentyFour == 1) {
-                sort_reply(listInfo);
-            } else {
-                sort(listInfo);
-            }
+            sort(listInfo);
             return listInfo;
         } catch (NullPointerException e) {
             NLog.e(TAG, "can not parse :\n" + js);
@@ -50,27 +46,6 @@ public class TopicConvertFactory {
         }
 
     }
-    private void sort_reply(TopicListInfo listInfo) {
-        List<ThreadPageInfo> list = listInfo.getThreadPageList();
-        if (PhoneConfiguration.getInstance().needSortByPostOrder()) {
-            Collections.sort(list, new Comparator<ThreadPageInfo>() {
-                @Override
-                public int compare(ThreadPageInfo o1, ThreadPageInfo o2) {
-                    return o1.getReplies() < o2.getReplies() ? 1 : -1;
-                }
-            });
-        }
-        List<SubBoard> subBoards = listInfo.getSubBoardList();
-        if (!subBoards.isEmpty()) {
-            Collections.sort(subBoards, new Comparator<SubBoard>() {
-                @Override
-                public int compare(SubBoard o1, SubBoard o2) {
-                    return Integer.parseInt(o1.getUrl()) < Integer.parseInt(o2.getUrl()) ? 1 : -1;
-                }
-            });
-        }
-    }
-
 
     private void sort(TopicListInfo listInfo) {
         List<ThreadPageInfo> list = listInfo.getThreadPageList();
