@@ -48,7 +48,7 @@ public interface TopicListContract {
 
         void loadTopicList(int page, TopicListParam param, OnHttpCallBack<TopicListInfo> callBack);
 
-        void loadTwentyFourList(TopicListParam param, OnHttpCallBack<TopicListInfo> callBack);
+        void loadTwentyFourList(TopicListParam param, OnHttpCallBack<TopicListInfo> callBack, int pageCount);
     }
 
 }

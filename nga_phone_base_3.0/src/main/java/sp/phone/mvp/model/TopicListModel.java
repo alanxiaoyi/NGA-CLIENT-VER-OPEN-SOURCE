@@ -4,10 +4,12 @@ import com.trello.rxlifecycle2.android.FragmentEvent;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
@@ -109,22 +111,28 @@ public class TopicListModel extends BaseModel implements TopicListContract.Model
     }
 
     @Override
-    public void loadTwentyFourList(TopicListParam param, final OnHttpCallBack<TopicListInfo> callBack) {
+    public void loadTwentyFourList(TopicListParam param, final OnHttpCallBack<TopicListInfo> callBack, int totalPage) {
         int page = 0;
-        do {
+//        do {
             page++;
             final int tmpPage = page;
             NLog.e(Integer.toString(tmpPage));
-            String url = getUrl(tmpPage, param);
-            mService.get(url)
-                    .subscribeOn(Schedulers.io())
+
+            List<Observable<String>> obsList = new ArrayList<Observable<String>>();
+//            String url = getUrl(tmpPage, param);
+
+            for(int i = 1; i <= totalPage; i ++) {
+                obsList.add(mService.get(getUrl(i, param)));
+            }
+            //mService.get(url)
+                    Observable.concat(obsList).subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.io())
                     .compose(getLifecycleProvider().<String>bindUntilEvent(FragmentEvent.DETACH))
                     .map(new Function<String, TopicListInfo>() {
                         @Override
                         public TopicListInfo apply(@NonNull String js) throws Exception {
                             NLog.d(js);
-                            TopicListInfo result = mConvertFactory.getTopicListInfo(js, tmpPage);
+                            TopicListInfo result = mConvertFactory.getTopicListInfo(js, 0);
                             if (result != null) {
                                 return result;
                             } else {
@@ -144,7 +152,7 @@ public class TopicListModel extends BaseModel implements TopicListContract.Model
                             callBack.onError(ErrorConvertFactory.getErrorMessage(throwable));
                         }
                     });
-         } while (page <= 2);
+//         } while (page <= 2);
     }
 
     private String getUrl(int page, TopicListParam requestInfo) {

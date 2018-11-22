@@ -3,6 +3,7 @@ package sp.phone.mvp.presenter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import sp.phone.forumoperation.TopicListParam;
 import sp.phone.fragment.TopicSearchFragment;
@@ -19,7 +20,14 @@ import sp.phone.util.NLog;
 
 public class TopicListPresenter extends BasePresenter<TopicSearchFragment, TopicListModel> implements TopicListContract.Presenter {
 
+    /* How many pages we query for twenty four hour hot topic */
+    protected final int twentyFourPageCount = 5;
+    protected final int twentyFourTopicCount = 50;
+
+    protected int pageQueriedCounter = 0;
+    protected int twentyFourCurPos = 0;
     protected TopicListInfo twentyFourList = new TopicListInfo();
+    protected TopicListInfo twentyFourCurList = new TopicListInfo();
 
 
 
@@ -83,13 +91,28 @@ public class TopicListPresenter extends BasePresenter<TopicSearchFragment, Topic
             }
             /* Concatenate the pages */
             twentyFourList.getThreadPageList().addAll(data.getThreadPageList());
-            Collections.sort(twentyFourList.getThreadPageList(), new Comparator<ThreadPageInfo>() {
-                public int compare(ThreadPageInfo o1, ThreadPageInfo o2) {
-                    return o1.getReplies() < o2.getReplies() ? 1 : -1;
+            pageQueriedCounter++;
+
+            if (pageQueriedCounter == twentyFourPageCount) {
+                twentyFourCurPos = 0;
+                List<ThreadPageInfo> threadPageList = twentyFourList.getThreadPageList();
+                threadPageList.removeIf(item -> (data.curTime - item.getPostDate() > 24 * 60 * 60));
+                if (threadPageList.size() > twentyFourTopicCount) {
+                    threadPageList.subList(twentyFourTopicCount, threadPageList.size());
                 }
-            });
-            setData(twentyFourList);
-            mBaseView.hideLoadingView();
+                Collections.sort(twentyFourList.getThreadPageList(), new Comparator<ThreadPageInfo>() {
+                    public int compare(ThreadPageInfo o1, ThreadPageInfo o2) {
+                        return o1.getReplies() < o2.getReplies() ? 1 : -1;
+                    }
+                });
+
+                int endPos = twentyFourCurPos + 20 > twentyFourList.getThreadPageList().size() ?
+                        twentyFourList.getThreadPageList().size() : (twentyFourCurPos + 20);
+                twentyFourCurList.setThreadPageList(twentyFourList.getThreadPageList().subList(0, endPos));
+                twentyFourCurPos = endPos;
+                setData(twentyFourCurList);
+                mBaseView.hideLoadingView();
+            }
         }
     };
 
@@ -129,9 +152,10 @@ public class TopicListPresenter extends BasePresenter<TopicSearchFragment, Topic
         if (requestInfo.twentyfour == 1) {
             /* preload pages */
             twentyFourList.getThreadPageList().clear();
+            pageQueriedCounter = 0;
             mBaseView.clearData();
             mBaseView.scrollTo(0);
-            mBaseModel.loadTwentyFourList(requestInfo, mTwentyFourCallBack);
+            mBaseModel.loadTwentyFourList(requestInfo, mTwentyFourCallBack, twentyFourPageCount);
         } else {
             mBaseModel.loadTopicList(page, requestInfo, mCallBack);
         }
@@ -140,7 +164,15 @@ public class TopicListPresenter extends BasePresenter<TopicSearchFragment, Topic
     @Override
     public void loadNextPage(int page, TopicListParam requestInfo) {
         mBaseView.setRefreshing(true);
-        mBaseModel.loadTopicList(page, requestInfo, mNextPageCallBack);
+        if (requestInfo.twentyfour == 1) {
+            int endPos = twentyFourCurPos + 20 > twentyFourList.getThreadPageList().size() ?
+                    twentyFourList.getThreadPageList().size() : (twentyFourCurPos + 20);
+            twentyFourCurList.setThreadPageList(twentyFourList.getThreadPageList().subList(0, endPos));
+            twentyFourCurPos = endPos;
+            setData(twentyFourCurList);
+        } else {
+            mBaseModel.loadTopicList(page, requestInfo, mNextPageCallBack);
+        }
     }
 
 }
