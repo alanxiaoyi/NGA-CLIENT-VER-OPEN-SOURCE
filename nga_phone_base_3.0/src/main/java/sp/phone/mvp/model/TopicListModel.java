@@ -112,20 +112,12 @@ public class TopicListModel extends BaseModel implements TopicListContract.Model
 
     @Override
     public void loadTwentyFourList(TopicListParam param, final OnHttpCallBack<TopicListInfo> callBack, int totalPage) {
-        int page = 0;
-//        do {
-            page++;
-            final int tmpPage = page;
-            NLog.e(Integer.toString(tmpPage));
 
             List<Observable<String>> obsList = new ArrayList<Observable<String>>();
-//            String url = getUrl(tmpPage, param);
-
             for(int i = 1; i <= totalPage; i ++) {
                 obsList.add(mService.get(getUrl(i, param)));
             }
-            //mService.get(url)
-                    Observable.concat(obsList).subscribeOn(Schedulers.io())
+            Observable.concat(obsList).subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.io())
                     .compose(getLifecycleProvider().<String>bindUntilEvent(FragmentEvent.DETACH))
                     .map(new Function<String, TopicListInfo>() {
@@ -152,7 +144,6 @@ public class TopicListModel extends BaseModel implements TopicListContract.Model
                             callBack.onError(ErrorConvertFactory.getErrorMessage(throwable));
                         }
                     });
-//         } while (page <= 2);
     }
 
     private String getUrl(int page, TopicListParam requestInfo) {

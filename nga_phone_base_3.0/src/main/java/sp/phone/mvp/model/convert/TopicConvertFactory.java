@@ -39,7 +39,6 @@ public class TopicConvertFactory {
             convertSubBoard(listInfo, topicListBean);
             convertTopic(listInfo, topicListBean, page);
             listInfo.curTime = topicListBean.getTime();
-            NLog.e(Integer.toString(listInfo.curTime));
             sort(listInfo);
             return listInfo;
         } catch (NullPointerException e) {

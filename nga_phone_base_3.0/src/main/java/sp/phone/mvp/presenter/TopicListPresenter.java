@@ -20,16 +20,15 @@ import sp.phone.util.NLog;
 
 public class TopicListPresenter extends BasePresenter<TopicSearchFragment, TopicListModel> implements TopicListContract.Presenter {
 
-    /* How many pages we query for twenty four hour hot topic */
+    // Following variables are for the 24 hour hot topic feature
+    // How many pages we query for twenty four hour hot topic
     protected final int twentyFourPageCount = 5;
+    // How many total topics we want to show
     protected final int twentyFourTopicCount = 50;
-
     protected int pageQueriedCounter = 0;
     protected int twentyFourCurPos = 0;
     protected TopicListInfo twentyFourList = new TopicListInfo();
     protected TopicListInfo twentyFourCurList = new TopicListInfo();
-
-
 
     private OnHttpCallBack<TopicListInfo> mCallBack = new OnHttpCallBack<TopicListInfo>() {
         @Override
@@ -51,7 +50,6 @@ public class TopicListPresenter extends BasePresenter<TopicSearchFragment, Topic
             setData(data);
             mBaseView.hideLoadingView();
         }
-
     };
 
     private OnHttpCallBack<TopicListInfo> mNextPageCallBack = new OnHttpCallBack<TopicListInfo>() {
@@ -105,7 +103,7 @@ public class TopicListPresenter extends BasePresenter<TopicSearchFragment, Topic
                         return o1.getReplies() < o2.getReplies() ? 1 : -1;
                     }
                 });
-
+                // We list 20 topics each time
                 int endPos = twentyFourCurPos + 20 > twentyFourList.getThreadPageList().size() ?
                         twentyFourList.getThreadPageList().size() : (twentyFourCurPos + 20);
                 twentyFourCurList.setThreadPageList(twentyFourList.getThreadPageList().subList(0, endPos));
@@ -150,7 +148,7 @@ public class TopicListPresenter extends BasePresenter<TopicSearchFragment, Topic
     public void loadPage(int page, TopicListParam requestInfo) {
         mBaseView.setRefreshing(true);
         if (requestInfo.twentyfour == 1) {
-            /* preload pages */
+            // preload pages
             twentyFourList.getThreadPageList().clear();
             pageQueriedCounter = 0;
             mBaseView.clearData();
